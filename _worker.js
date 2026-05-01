@@ -1,7 +1,7 @@
-let DoH = "one.one.one.one";
+let DoH = 'one.one.one.one';
 const jsonDoH = `https://${DoH}/resolve`;
 const dnsDoH = `https://${DoH}/dns-query`;
-let DoH路径 = "dns-query";
+let DoH路径 = 'dns-query';
 export default {
 	async fetch(request, env) {
 		if (env.DOH) {
@@ -12,33 +12,33 @@ export default {
 			}
 		}
 		DoH路径 = env.PATH || env.TOKEN || DoH路径;
-		if (DoH路径.includes("/")) DoH路径 = DoH路径.split("/")[1];
+		if (DoH路径.includes('/')) DoH路径 = DoH路径.split('/')[1];
 		const url = new URL(request.url);
 		const path = url.pathname;
 		const hostname = url.hostname;
-		if (request.method === "OPTIONS") {
+		if (request.method === 'OPTIONS') {
 			return new Response(null, {
 				headers: {
-					"Access-Control-Allow-Origin": "*",
-					"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-					"Access-Control-Allow-Headers": "*",
-					"Access-Control-Max-Age": "86400",
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+					'Access-Control-Allow-Headers': '*',
+					'Access-Control-Max-Age': '86400',
 				},
 			});
 		}
 		if (path === `/${DoH路径}`) {
 			return await DOHRequest(request);
 		}
-		if (path === "/ip-info") {
+		if (path === '/ip-info') {
 			if (env.TOKEN) {
-				const token = url.searchParams.get("token");
+				const token = url.searchParams.get('token');
 				if (token != env.TOKEN) {
 					return new Response(
 						JSON.stringify(
 							{
-								status: "error",
-								message: "Token不正确",
-								code: "AUTH_FAILED",
+								status: 'error',
+								message: 'Token不正确',
+								code: 'AUTH_FAILED',
 								timestamp: new Date().toISOString(),
 							},
 							null,
@@ -47,24 +47,24 @@ export default {
 						{
 							status: 403,
 							headers: {
-								"content-type":
-									"application/json; charset=UTF-8",
-								"Access-Control-Allow-Origin": "*",
+								'content-type':
+									'application/json; charset=UTF-8',
+								'Access-Control-Allow-Origin': '*',
 							},
 						}
 					);
 				}
 			}
 			const ip =
-				url.searchParams.get("ip") ||
-				request.headers.get("CF-Connecting-IP");
+				url.searchParams.get('ip') ||
+				request.headers.get('CF-Connecting-IP');
 			if (!ip) {
 				return new Response(
 					JSON.stringify(
 						{
-							status: "error",
-							message: "IP参数未提供",
-							code: "MISSING_PARAMETER",
+							status: 'error',
+							message: 'IP参数未提供',
+							code: 'MISSING_PARAMETER',
 							timestamp: new Date().toISOString(),
 						},
 						null,
@@ -73,8 +73,8 @@ export default {
 					{
 						status: 400,
 						headers: {
-							"content-type": "application/json; charset=UTF-8",
-							"Access-Control-Allow-Origin": "*",
+							'content-type': 'application/json; charset=UTF-8',
+							'Access-Control-Allow-Origin': '*',
 						},
 					}
 				);
@@ -91,24 +91,24 @@ export default {
 				data.timestamp = new Date().toISOString();
 				return new Response(JSON.stringify(data, null, 4), {
 					headers: {
-						"content-type": "application/json; charset=UTF-8",
-						"Access-Control-Allow-Origin": "*",
+						'content-type': 'application/json; charset=UTF-8',
+						'Access-Control-Allow-Origin': '*',
 					},
 				});
 			} catch (error) {
-				console.error("IP查询失败:", error);
+				console.error('IP查询失败:', error);
 				return new Response(
 					JSON.stringify(
 						{
-							status: "error",
+							status: 'error',
 							message: `IP查询失败: ${error.message}`,
-							code: "API_REQUEST_FAILED",
+							code: 'API_REQUEST_FAILED',
 							query: ip,
 							timestamp: new Date().toISOString(),
 							details: {
 								errorType: error.name,
 								stack: error.stack
-									? error.stack.split("\n")[0]
+									? error.stack.split('\n')[0]
 									: null,
 							},
 						},
@@ -118,28 +118,28 @@ export default {
 					{
 						status: 500,
 						headers: {
-							"content-type": "application/json; charset=UTF-8",
-							"Access-Control-Allow-Origin": "*",
+							'content-type': 'application/json; charset=UTF-8',
+							'Access-Control-Allow-Origin': '*',
 						},
 					}
 				);
 			}
 		}
-		if (url.searchParams.has("doh")) {
+		if (url.searchParams.has('doh')) {
 			const domain =
-				url.searchParams.get("domain") ||
-				url.searchParams.get("name") ||
-				"www.google.com";
-			const doh = url.searchParams.get("doh") || dnsDoH;
-			const type = url.searchParams.get("type") || "all";
+				url.searchParams.get('domain') ||
+				url.searchParams.get('name') ||
+				'www.google.com';
+			const doh = url.searchParams.get('doh') || dnsDoH;
+			const type = url.searchParams.get('type') || 'all';
 			if (doh.includes(url.host)) {
 				return await handleLocalDohRequest(domain, type, hostname);
 			}
 			try {
-				if (type === "all") {
-					const ipv4Result = await queryDns(doh, domain, "A");
-					const ipv6Result = await queryDns(doh, domain, "AAAA");
-					const nsResult = await queryDns(doh, domain, "NS");
+				if (type === 'all') {
+					const ipv4Result = await queryDns(doh, domain, 'A');
+					const ipv6Result = await queryDns(doh, domain, 'AAAA');
+					const nsResult = await queryDns(doh, domain, 'NS');
 					const combinedResult = {
 						Status:
 							ipv4Result.Status ||
@@ -211,8 +211,8 @@ export default {
 						JSON.stringify(combinedResult, null, 2),
 						{
 							headers: {
-								"content-type":
-									"application/json; charset=UTF-8",
+								'content-type':
+									'application/json; charset=UTF-8',
 							},
 						}
 					);
@@ -220,12 +220,12 @@ export default {
 					const result = await queryDns(doh, domain, type);
 					return new Response(JSON.stringify(result, null, 2), {
 						headers: {
-							"content-type": "application/json; charset=UTF-8",
+							'content-type': 'application/json; charset=UTF-8',
 						},
 					});
 				}
 			} catch (err) {
-				console.error("DNS 查询失败:", err);
+				console.error('DNS 查询失败:', err);
 				return new Response(
 					JSON.stringify(
 						{
@@ -239,7 +239,7 @@ export default {
 					),
 					{
 						headers: {
-							"content-type": "application/json; charset=UTF-8",
+							'content-type': 'application/json; charset=UTF-8',
 						},
 						status: 500,
 					}
@@ -248,10 +248,10 @@ export default {
 		}
 		if (env.URL302) return Response.redirect(env.URL302, 302);
 		else if (env.URL) {
-			if (env.URL.toString().toLowerCase() == "nginx") {
+			if (env.URL.toString().toLowerCase() == 'nginx') {
 				return new Response(await nginx(), {
 					headers: {
-						"Content-Type": "text/html; charset=UTF-8",
+						'Content-Type': 'text/html; charset=UTF-8',
 					},
 				});
 			} else return await 代理URL(env.URL, url);
@@ -260,22 +260,22 @@ export default {
 };
 async function queryDns(dohServer, domain, type) {
 	const dohUrl = new URL(dohServer);
-	dohUrl.searchParams.set("name", domain);
-	dohUrl.searchParams.set("type", type);
+	dohUrl.searchParams.set('name', domain);
+	dohUrl.searchParams.set('type', type);
 	const fetchOptions = [
 		{
-			headers: { Accept: "application/dns-json" },
+			headers: { Accept: 'application/dns-json' },
 		},
 		{
 			headers: {},
 		},
 		{
-			headers: { Accept: "application/json" },
+			headers: { Accept: 'application/json' },
 		},
 		{
 			headers: {
-				Accept: "application/dns-json",
-				"User-Agent": "Mozilla/5.0 DNS Client",
+				Accept: 'application/dns-json',
+				'User-Agent': 'Mozilla/5.0 DNS Client',
 			},
 		},
 	];
@@ -284,10 +284,10 @@ async function queryDns(dohServer, domain, type) {
 		try {
 			const response = await fetch(dohUrl.toString(), options);
 			if (response.ok) {
-				const contentType = response.headers.get("content-type") || "";
+				const contentType = response.headers.get('content-type') || '';
 				if (
-					contentType.includes("json") ||
-					contentType.includes("dns-json")
+					contentType.includes('json') ||
+					contentType.includes('dns-json')
 				) {
 					return await response.json();
 				} else {
@@ -314,14 +314,14 @@ async function queryDns(dohServer, domain, type) {
 			lastError = err;
 		}
 	}
-	throw lastError || new Error("无法完成 DNS 查询");
+	throw lastError || new Error('无法完成 DNS 查询');
 }
 async function handleLocalDohRequest(domain, type, hostname) {
 	try {
-		if (type === "all") {
-			const ipv4Promise = queryDns(dnsDoH, domain, "A");
-			const ipv6Promise = queryDns(dnsDoH, domain, "AAAA");
-			const nsPromise = queryDns(dnsDoH, domain, "NS");
+		if (type === 'all') {
+			const ipv4Promise = queryDns(dnsDoH, domain, 'A');
+			const ipv6Promise = queryDns(dnsDoH, domain, 'AAAA');
+			const nsPromise = queryDns(dnsDoH, domain, 'NS');
 			const [ipv4Result, ipv6Result, nsResult] = await Promise.all([
 				ipv4Promise,
 				ipv6Promise,
@@ -370,21 +370,21 @@ async function handleLocalDohRequest(domain, type, hostname) {
 			};
 			return new Response(JSON.stringify(combinedResult, null, 2), {
 				headers: {
-					"content-type": "application/json; charset=UTF-8",
-					"Access-Control-Allow-Origin": "*",
+					'content-type': 'application/json; charset=UTF-8',
+					'Access-Control-Allow-Origin': '*',
 				},
 			});
 		} else {
 			const result = await queryDns(dnsDoH, domain, type);
 			return new Response(JSON.stringify(result, null, 2), {
 				headers: {
-					"content-type": "application/json; charset=UTF-8",
-					"Access-Control-Allow-Origin": "*",
+					'content-type': 'application/json; charset=UTF-8',
+					'Access-Control-Allow-Origin': '*',
 				},
 			});
 		}
 	} catch (err) {
-		console.error("DoH 查询失败:", err);
+		console.error('DoH 查询失败:', err);
 		return new Response(
 			JSON.stringify(
 				{
@@ -396,8 +396,8 @@ async function handleLocalDohRequest(domain, type, hostname) {
 			),
 			{
 				headers: {
-					"content-type": "application/json; charset=UTF-8",
-					"Access-Control-Allow-Origin": "*",
+					'content-type': 'application/json; charset=UTF-8',
+					'Access-Control-Allow-Origin': '*',
 				},
 				status: 500,
 			}
@@ -406,63 +406,63 @@ async function handleLocalDohRequest(domain, type, hostname) {
 }
 async function DOHRequest(request) {
 	const { method, headers, body } = request;
-	const UA = headers.get("User-Agent") || "DoH Client";
+	const UA = headers.get('User-Agent') || 'DoH Client';
 	const url = new URL(request.url);
 	const { searchParams } = url;
 	try {
-		if (method === "GET" && !url.search) {
-			return new Response("Bad Request", {
+		if (method === 'GET' && !url.search) {
+			return new Response('Bad Request', {
 				status: 400,
 				headers: {
-					"Content-Type": "text/plain; charset=utf-8",
-					"Access-Control-Allow-Origin": "*",
+					'Content-Type': 'text/plain; charset=utf-8',
+					'Access-Control-Allow-Origin': '*',
 				},
 			});
 		}
 		let response;
 
-		if (method === "GET" && searchParams.has("name")) {
-			const searchDoH = searchParams.has("type")
+		if (method === 'GET' && searchParams.has('name')) {
+			const searchDoH = searchParams.has('type')
 				? url.search
-				: url.search + "&type=A";
+				: url.search + '&type=A';
 			response = await fetch(dnsDoH + searchDoH, {
 				headers: {
-					Accept: "application/dns-json",
-					"User-Agent": UA,
+					Accept: 'application/dns-json',
+					'User-Agent': UA,
 				},
 			});
 			if (!response.ok)
 				response = await fetch(jsonDoH + searchDoH, {
 					headers: {
-						Accept: "application/dns-json",
-						"User-Agent": UA,
+						Accept: 'application/dns-json',
+						'User-Agent': UA,
 					},
 				});
-		} else if (method === "GET") {
+		} else if (method === 'GET') {
 			response = await fetch(dnsDoH + url.search, {
 				headers: {
-					Accept: "application/dns-message",
-					"User-Agent": UA,
+					Accept: 'application/dns-message',
+					'User-Agent': UA,
 				},
 			});
-		} else if (method === "POST") {
+		} else if (method === 'POST') {
 			response = await fetch(dnsDoH, {
-				method: "POST",
+				method: 'POST',
 				headers: {
-					Accept: "application/dns-message",
-					"Content-Type": "application/dns-message",
-					"User-Agent": UA,
+					Accept: 'application/dns-message',
+					'Content-Type': 'application/dns-message',
+					'User-Agent': UA,
 				},
 				body: body,
 			});
 		} else {
 			return new Response(
-				"不支持的请求格式: DoH请求需要包含name或dns参数，或使用POST方法",
+				'不支持的请求格式: DoH请求需要包含name或dns参数，或使用POST方法',
 				{
 					status: 400,
 					headers: {
-						"Content-Type": "text/plain; charset=utf-8",
-						"Access-Control-Allow-Origin": "*",
+						'Content-Type': 'text/plain; charset=utf-8',
+						'Access-Control-Allow-Origin': '*',
 					},
 				}
 			);
@@ -477,14 +477,14 @@ async function DOHRequest(request) {
 			);
 		}
 		const responseHeaders = new Headers(response.headers);
-		responseHeaders.set("Access-Control-Allow-Origin", "*");
+		responseHeaders.set('Access-Control-Allow-Origin', '*');
 		responseHeaders.set(
-			"Access-Control-Allow-Methods",
-			"GET, POST, OPTIONS"
+			'Access-Control-Allow-Methods',
+			'GET, POST, OPTIONS'
 		);
-		responseHeaders.set("Access-Control-Allow-Headers", "*");
-		if (method === "GET" && searchParams.has("name")) {
-			responseHeaders.set("Content-Type", "application/json");
+		responseHeaders.set('Access-Control-Allow-Headers', '*');
+		if (method === 'GET' && searchParams.has('name')) {
+			responseHeaders.set('Content-Type', 'application/json');
 		}
 		return new Response(response.body, {
 			status: response.status,
@@ -492,7 +492,7 @@ async function DOHRequest(request) {
 			headers: responseHeaders,
 		});
 	} catch (error) {
-		console.error("DoH 请求处理错误:", error);
+		console.error('DoH 请求处理错误:', error);
 		return new Response(
 			JSON.stringify(
 				{
@@ -505,8 +505,8 @@ async function DOHRequest(request) {
 			{
 				status: 500,
 				headers: {
-					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": "*",
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
 				},
 			}
 		);
@@ -1936,7 +1936,7 @@ async function HTML() {
 </body>
 </html>`;
 	return new Response(html, {
-		headers: { "content-type": "text/html;charset=UTF-8" },
+		headers: { 'content-type': 'text/html;charset=UTF-8' },
 	});
 }
 async function 代理URL(代理网址, 目标网址) {
@@ -1944,11 +1944,11 @@ async function 代理URL(代理网址, 目标网址) {
 	const 完整网址 = 网址列表[Math.floor(Math.random() * 网址列表.length)];
 	const 解析后的网址 = new URL(完整网址);
 	console.log(解析后的网址);
-	const 协议 = 解析后的网址.protocol.slice(0, -1) || "https";
+	const 协议 = 解析后的网址.protocol.slice(0, -1) || 'https';
 	const 主机名 = 解析后的网址.hostname;
 	let 路径名 = 解析后的网址.pathname;
 	const 查询参数 = 解析后的网址.search;
-	if (路径名.charAt(路径名.length - 1) == "/") {
+	if (路径名.charAt(路径名.length - 1) == '/') {
 		路径名 = 路径名.slice(0, -1);
 	}
 	路径名 += 目标网址.pathname;
@@ -1959,15 +1959,15 @@ async function 代理URL(代理网址, 目标网址) {
 		statusText: 响应.statusText,
 		headers: 响应.headers,
 	});
-	新响应.headers.set("X-New-URL", 新网址);
+	新响应.headers.set('X-New-URL', 新网址);
 	return 新响应;
 }
 async function 整理(内容) {
-	var 替换后的内容 = 内容.replace(/[	|"'\r\n]+/g, ",").replace(/,+/g, ",");
-	if (替换后的内容.charAt(0) == ",") 替换后的内容 = 替换后的内容.slice(1);
-	if (替换后的内容.charAt(替换后的内容.length - 1) == ",")
+	var 替换后的内容 = 内容.replace(/[	|"'\r\n]+/g, ',').replace(/,+/g, ',');
+	if (替换后的内容.charAt(0) == ',') 替换后的内容 = 替换后的内容.slice(1);
+	if (替换后的内容.charAt(替换后的内容.length - 1) == ',')
 		替换后的内容 = 替换后的内容.slice(0, 替换后的内容.length - 1);
-	const 地址数组 = 替换后的内容.split(",");
+	const 地址数组 = 替换后的内容.split(',');
 	return 地址数组;
 }
 async function nginx() {
